@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>会員登録</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root {
+      --bg: #FCFBF8; --card: #FFFFFF; --ink: #17251E; --muted: #6C7A72;
+      --line: #E5E9E5; --accent: #1F8A5B; --accent-press: #176d48;
+      --danger: #C2410C; --radius: 14px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP", "Yu Gothic", sans-serif;
+      line-height: 1.6; padding: 24px 18px calc(28px + env(safe-area-inset-bottom));
+      max-width: 480px; margin: 0 auto;
+    }
+    .eyebrow { font-size: 13px; color: var(--muted); letter-spacing: .04em; }
+    h1 { font-size: 22px; margin: 4px 0 20px; font-weight: 700; }
+    .card { background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+    .hint { font-size: 14px; color: var(--muted); margin: 0; }
+    label { display: block; font-size: 14px; font-weight: 600; margin: 16px 0 6px; }
+    input { width: 100%; height: 52px; padding: 0 14px; font-size: 16px;
+      border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    button { width: 100%; height: 54px; font-size: 17px; font-weight: 700;
+      border: 0; border-radius: 12px; cursor: pointer; margin-top: 18px; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:active { background: var(--accent-press); }
+    .btn-primary:disabled { opacity: .55; }
+    .name { font-size: 20px; font-weight: 700; }
+    .screen { display: none; } .screen.active { display: block; }
+    .center { text-align: center; }
+    .big-check { width: 64px; height: 64px; margin: 8px auto 12px; border-radius: 50%;
+      background: var(--accent); color: #fff; font-size: 34px;
+      display: flex; align-items: center; justify-content: center; }
+    .err { color: var(--danger); font-size: 14px; margin-top: 10px; display: none; }
+    .spinner { width: 34px; height: 34px; margin: 40px auto; border-radius: 50%;
+      border: 3px solid var(--line); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">西三河まちつなぎ会</p>
+  <h1>会員登録</h1>
+
+  <section id="s-loading" class="screen active">
+    <div class="spinner"></div>
+    <p class="center hint">読み込んでいます…</p>
+  </section>
+
+  <!-- 登録フォーム -->
+  <section id="s-form" class="screen">
+    <div class="card">
+      <p class="hint">以下を入力して登録してください。登録するとLINEと紐づき、次回から交流会の参加がワンタップになります。</p>
+      <label for="name">お名前</label>
+      <input id="name" type="text" autocomplete="name" placeholder="山田 太郎" />
+      <label for="phone">電話番号</label>
+      <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09012345678" />
+      <label for="address">住所</label>
+      <input id="address" type="text" autocomplete="street-address" placeholder="愛知県…" />
+      <p class="err" id="formErr"></p>
+    </div>
+    <button class="btn-primary" id="btnRegister">登録する</button>
+  </section>
+
+  <!-- 登録済み -->
+  <section id="s-exists" class="screen center">
+    <div class="big-check">✓</div>
+    <p class="name"><span id="existsName"></span> さん</p>
+    <p class="hint">すでに会員登録がお済みです。交流会の参加はメニューの「交流会に参加」からどうぞ。</p>
+  </section>
+
+  <!-- 完了 -->
+  <section id="s-done" class="screen center">
+    <div class="big-check">✓</div>
+    <p class="name">登録が完了しました</p>
+    <p class="hint">ありがとうございます。次回から交流会にワンタップで参加できます。</p>
+  </section>
+
+  <!-- エラー -->
+  <section id="s-error" class="screen center">
+    <p class="name">うまくいきませんでした</p>
+    <p class="hint" id="errMsg"></p>
+    <button class="btn-primary" id="btnRetry">もう一度ひらく</button>
+  </section>
+
+  <script>
+    // ===== 設定（ここを埋める）=====
+    const LIFF_ID = '2010633156-6XBOLrvg';   // 会員登録用のLIFF ID
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXhl189-cAnc88kJYBAxVTPL6sqpHPxli5GpG-HXin1JPGePWp00Iv3JjoPhWXa1ir/exec';
+
+    let idToken = null;
+    const $ = (id) => document.getElementById(id);
+    function show(id) {
+      document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
+      $(id).classList.add('active');
+    }
+    function fail(msg) { $('errMsg').textContent = msg || '通信に失敗しました。'; show('s-error'); }
+
+    async function callGas(payload) {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ idToken: idToken }, payload)),
+      });
+      return res.json();
+    }
+
+    async function init() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
+        idToken = liff.getIDToken();
+        if (!idToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
+
+        const r = await callGas({ action: 'checkMember' });
+        if (r.status === 'member') {
+          $('existsName').textContent = r.name;
+          show('s-exists');
+        } else {
+          show('s-form');
+        }
+      } catch (e) { fail(String((e && e.message) || e)); }
+    }
+
+    $('btnRegister').addEventListener('click', async (ev) => {
+      const name = $('name').value.trim();
+      const phone = $('phone').value.trim();
+      const address = $('address').value.trim();
+      $('formErr').style.display = 'none';
+      if (!name || !phone) {
+        $('formErr').textContent = 'お名前と電話番号は必須です。';
+        $('formErr').style.display = 'block';
+        return;
+      }
+      ev.target.disabled = true;
+      try {
+        const r = await callGas({ action: 'register', name: name, phone: phone, address: address });
+        if (r.status === 'registered') show('s-done');
+        else if (r.status === 'exists') { $('existsName').textContent = r.name; show('s-exists'); }
+        else fail(r.message || '登録に失敗しました。');
+      } catch (e) { fail(String(e)); }
+      finally { ev.target.disabled = false; }
+    });
+
+    $('btnRetry').addEventListener('click', () => location.reload());
+    init();
+  </script>
+</body>
+</html>
