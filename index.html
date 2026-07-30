@@ -138,7 +138,7 @@
     const EVENT_ID = params.get('event') || 'default';
     const EVENT_TITLE = params.get('title') || '交流会';
 
-    let idToken = null;
+    let accessToken = null;
 
     const $ = (id) => document.getElementById(id);
     function show(id) {
@@ -152,7 +152,7 @@
       const res = await fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(Object.assign({ idToken: idToken }, payload)),
+        body: JSON.stringify(Object.assign({ accessToken: accessToken }, payload)),
       });
       return res.json();
     }
@@ -163,8 +163,8 @@
       try {
         await liff.init({ liffId: LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
-        idToken = liff.getIDToken();
-        if (!idToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
+        accessToken = liff.getAccessToken();
+        if (!accessToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
 
         const r = await callGas({ action: 'checkMember' });
         if (r.status === 'member') {

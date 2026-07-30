@@ -142,7 +142,7 @@
     const LIFF_ID = '2010633156-6XBOLrvg';   // 会員登録用のLIFF ID
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXhl189-cAnc88kJYBAxVTPL6sqpHPxli5GpG-HXin1JPGePWp00Iv3JjoPhWXa1ir/exec';
 
-    let idToken = null;
+    let accessToken = null;
     const $ = (id) => document.getElementById(id);
     function show(id) {
       document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
@@ -154,7 +154,7 @@
       const res = await fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(Object.assign({ idToken: idToken }, payload)),
+        body: JSON.stringify(Object.assign({ accessToken: accessToken }, payload)),
       });
       return res.json();
     }
@@ -163,8 +163,8 @@
       try {
         await liff.init({ liffId: LIFF_ID });
         if (!liff.isLoggedIn()) { liff.login(); return; }
-        idToken = liff.getIDToken();
-        if (!idToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
+        accessToken = liff.getAccessToken();
+        if (!accessToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
 
         const r = await callGas({ action: 'checkMember' });
         if (r.status === 'member') { $('existsName').textContent = r.name; show('s-exists'); }
