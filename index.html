@@ -140,8 +140,8 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXhl189-cAnc88kJYBAxVTPL6sqpHPxli5GpG-HXin1JPGePWp00Iv3JjoPhWXa1ir/exec';
 
     const params = new URLSearchParams(location.search);
-    const EVENT_ID = params.get('event') || 'default';
-    const EVENT_TITLE = params.get('title') || '交流会';
+    let EVENT_ID = params.get('event') || '';
+    let EVENT_TITLE = params.get('title') || '交流会';
 
     let accessToken = null;
 
@@ -169,6 +169,11 @@
         if (!liff.isLoggedIn()) { liff.login(); return; }
         accessToken = liff.getAccessToken();
         if (!accessToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
+
+        // 直近の開催回を自動取得（開催予定シートから）
+        const ne = await callGas({ action: 'nextEvent' });
+        if (ne && ne.eventId) { EVENT_ID = ne.eventId; EVENT_TITLE = ne.title; }
+        $('eventDate').textContent = EVENT_TITLE;
 
         const r = await callGas({ action: 'checkMember' });
         if (r.status === 'member') {
