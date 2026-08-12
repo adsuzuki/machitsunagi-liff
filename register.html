@@ -100,6 +100,9 @@
       <label for="company">会社名</label>
       <input id="company" type="text" autocomplete="organization" placeholder="株式会社◯◯" />
 
+      <label for="job">職種</label>
+      <input id="job" type="text" autocomplete="organization-title" placeholder="例：営業／設計／代表" />
+
       <label for="phone">電話番号</label>
       <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09012345678" />
       <p class="fieldnote">LINEと紐づけて、次回からの参加を簡単にするために使います。</p>
@@ -175,17 +178,18 @@
     $('btnRegister').addEventListener('click', async (ev) => {
       const name = $('name').value.trim();
       const company = $('company').value.trim();
+      const job = $('job').value.trim();
       const phone = $('phone').value.trim();
       const city = $('city').value.trim();
       $('formErr').style.display = 'none';
-      if (!name || !company || !phone || !city) {
+      if (!name || !company || !job || !phone || !city) {
         $('formErr').textContent = 'すべての項目を入力してください。';
         $('formErr').style.display = 'block';
         return;
       }
       ev.target.disabled = true;
       try {
-        const r = await callGas({ action: 'register', name: name, company: company, phone: phone, city: city });
+        const r = await callGas({ action: 'register', name: name, company: company, job: job, phone: phone, city: city });
         if (r.status === 'registered') show('s-done');
         else if (r.status === 'exists') { $('existsName').textContent = r.name; show('s-exists'); }
         else fail(r.message || '登録に失敗しました。');

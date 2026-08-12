@@ -247,7 +247,7 @@
 
     function finishJoin(r) {
       if (r && r.status === 'joined') {
-        $('doneMsg').textContent = 'ありがとうございます。当日お会いできるのを楽しみにしています。';
+        $('doneMsg').textContent = 'ありがとうございます。当日お会いできるのを楽しみにしています。お名前は当日配布されるリストに記載されます。';
         show('s-done');
       } else if (r && r.status === 'already') {
         $('doneMsg').textContent = 'すでに参加登録済みです。';
