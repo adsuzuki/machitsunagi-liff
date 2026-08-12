@@ -84,11 +84,14 @@
     <p class="center hint">読み込んでいます…</p>
   </section>
 
-  <!-- 会員: ワンタップ参加 -->
+  <!-- 会員: 一言を添えて参加 -->
   <section id="s-member" class="screen">
     <div class="card">
       <p class="name"><span id="memberName"></span> さん</p>
       <p class="hint" id="memberHint">このイベントに参加しますか？</p>
+      <label for="mComment" style="display:block;font-size:14px;font-weight:600;margin:16px 0 6px;">一言（任意）</label>
+      <textarea id="mComment" rows="2" placeholder="例：〇〇やってます。よろしくお願いします。" style="width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--line);border-radius:12px;background:#fff;resize:vertical;font-family:inherit;"></textarea>
+      <p class="hint" style="margin-top:6px;">当日配布される参加者リストに記載されます。</p>
     </div>
     <button class="btn-primary" id="btnJoinMember">参加する</button>
   </section>
@@ -115,6 +118,9 @@
       <input id="gPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09012345678" />
       <label for="gAddress">住所</label>
       <input id="gAddress" type="text" autocomplete="street-address" placeholder="愛知県…" />
+      <label for="gComment" style="margin-top:16px;">一言（任意）</label>
+      <textarea id="gComment" rows="2" placeholder="例：〇〇やってます。よろしくお願いします。" style="width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--line);border-radius:12px;background:#fff;resize:vertical;font-family:inherit;"></textarea>
+      <p class="hint" style="margin-top:6px;">当日配布される参加者リストに記載されます。</p>
       <p class="err" id="guestErr" style="display:none"></p>
     </div>
     <button class="btn-primary" id="btnJoinGuest">参加する</button>
@@ -192,7 +198,8 @@
     $('btnJoinMember').addEventListener('click', async (ev) => {
       ev.target.disabled = true;
       try {
-        const r = await callGas({ action: 'join', kind: 'member', eventId: EVENT_ID });
+        const comment = $('mComment').value.trim();
+        const r = await callGas({ action: 'join', kind: 'member', eventId: EVENT_ID, comment: comment });
         finishJoin(r);
       } catch (e) { fail(String(e)); }
     });
@@ -206,8 +213,10 @@
       try {
         const r = await callGas({ action: 'linkByPhone', phone: phone });
         if (r.status === 'linked') {
-          const j = await callGas({ action: 'join', kind: 'member', eventId: EVENT_ID });
-          finishJoin(j);
+          // 照合できたら、一言を書いてもらう会員画面へ
+          $('memberName').textContent = r.name;
+          $('memberHint').textContent = '「' + EVENT_TITLE + '」に参加しますか？';
+          show('s-member');
         } else {
           // 照合できなければ非会員フォームへ（入力済みの電話を引き継ぐ）
           $('gPhone').value = phone;
@@ -227,6 +236,7 @@
       const name = $('gName').value.trim();
       const phone = $('gPhone').value.trim();
       const address = $('gAddress').value.trim();
+      const comment = $('gComment').value.trim();
       $('guestErr').style.display = 'none';
       if (!name || !phone) {
         $('guestErr').textContent = 'お名前と電話番号は必須です。';
@@ -237,7 +247,7 @@
       try {
         const r = await callGas({
           action: 'join', kind: 'guest', eventId: EVENT_ID,
-          name: name, phone: phone, address: address,
+          name: name, phone: phone, address: address, comment: comment,
         });
         finishJoin(r);
       } catch (e) { fail(String(e)); }
