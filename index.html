@@ -114,13 +114,17 @@
       <p class="hint">参加に必要な情報を入力してください。</p>
       <label for="gName">お名前</label>
       <input id="gName" type="text" autocomplete="name" placeholder="山田 太郎" />
+      <label for="gCompany">会社名</label>
+      <input id="gCompany" type="text" autocomplete="organization" placeholder="株式会社◯◯" />
+      <label for="gJob">職種</label>
+      <input id="gJob" type="text" autocomplete="organization-title" placeholder="例：営業／設計／代表" />
       <label for="gPhone">電話番号</label>
       <input id="gPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09012345678" />
-      <label for="gAddress">住所</label>
-      <input id="gAddress" type="text" autocomplete="street-address" placeholder="愛知県…" />
-      <label for="gComment" style="margin-top:16px;">一言（任意）</label>
+      <label for="gComment">一言</label>
       <textarea id="gComment" rows="2" placeholder="例：〇〇やってます。よろしくお願いします。" style="width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--line);border-radius:12px;background:#fff;resize:vertical;font-family:inherit;"></textarea>
       <p class="hint" style="margin-top:6px;">当日配布される参加者リストに記載されます。</p>
+      <label for="gAddress" style="margin-top:16px;">住所（任意）</label>
+      <input id="gAddress" type="text" autocomplete="street-address" placeholder="愛知県…" />
       <p class="err" id="guestErr" style="display:none"></p>
     </div>
     <button class="btn-primary" id="btnJoinGuest">参加する</button>
@@ -234,12 +238,14 @@
     // 非会員: 都度フォーム
     $('btnJoinGuest').addEventListener('click', async (ev) => {
       const name = $('gName').value.trim();
+      const company = $('gCompany').value.trim();
+      const job = $('gJob').value.trim();
       const phone = $('gPhone').value.trim();
       const address = $('gAddress').value.trim();
       const comment = $('gComment').value.trim();
       $('guestErr').style.display = 'none';
-      if (!name || !phone) {
-        $('guestErr').textContent = 'お名前と電話番号は必須です。';
+      if (!name || !company || !job || !phone || !comment) {
+        $('guestErr').textContent = 'お名前・会社名・職種・電話番号・一言は必須です。';
         $('guestErr').style.display = 'block';
         return;
       }
@@ -247,7 +253,7 @@
       try {
         const r = await callGas({
           action: 'join', kind: 'guest', eventId: EVENT_ID,
-          name: name, phone: phone, address: address, comment: comment,
+          name: name, company: company, job: job, phone: phone, address: address, comment: comment,
         });
         finishJoin(r);
       } catch (e) { fail(String(e)); }
