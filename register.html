@@ -211,7 +211,9 @@
       $('eName').value = r.name || '';
       $('eCompany').value = r.company || '';
       $('eJob').value = r.job || '';
-      $('ePhone').value = r.phone || '';
+      let ph = String(r.phone || '').replace(/[^0-9]/g, '');
+      if (ph.length === 10 && /^[789]/.test(ph)) ph = '0' + ph; // スプレッドシートで消えた先頭の0を補う
+      $('ePhone').value = ph;
       $('eCity').value = r.city || '';
       $('editHeader').style.display = 'block';
       show('s-edit');
