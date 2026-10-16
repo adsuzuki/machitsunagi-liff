@@ -71,6 +71,16 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+    .terms { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 14px; margin-top:20px; }
+    .terms-scroll { max-height:220px; overflow-y:auto; font-size:12.5px; line-height:1.7; padding-right:6px; -webkit-overflow-scrolling:touch; }
+    .terms-scroll h3 { font-size:13.5px; margin:0 0 6px; }
+    .terms-scroll h3:not(:first-child) { margin-top:14px; }
+    .terms-scroll p { margin:0 0 6px; }
+    .terms-scroll ul { margin:0 0 6px; padding-left:1.2em; }
+    .terms-scroll li { margin-bottom:6px; }
+    .terms-scroll .sub { margin-top:4px; display:block; }
+    .agree { display:flex; align-items:flex-start; gap:10px; margin-top:12px; font-size:14px; font-weight:700; cursor:pointer; }
+    .agree input { width:22px; height:22px; flex:none; margin-top:1px; accent-color:var(--accent); }
   </style>
 </head>
 <body>
@@ -118,6 +128,27 @@
       <textarea id="mComment" rows="2" placeholder="例：〇〇やってます。よろしくお願いします。" style="width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--line);border-radius:12px;background:#fff;resize:vertical;font-family:inherit;"></textarea>
       <p class="hint" style="margin-top:6px;">当日配布される参加者リストに記載されます。</p>
     </div>
+    <div class="terms">
+      <div class="terms-scroll">
+        <h3>■禁止事項や遠慮してほしいこと</h3>
+        <p>皆さまに安心してご参加いただける場づくりのため、以下の行為は禁止しております。</p>
+        <ul>
+          <li>会場内は禁煙です。喫煙は各会場で指定されている喫煙所でお願いします。（会場によっては喫煙所を設けていない場合があります）</li>
+          <li>交流会において営業活動自体は問題ありませんが、違法商材、違法行為、違法サービスの営業行為は禁止させていただきます。<span class="sub">ただし、上記禁止事項に該当せずとも営業活動が過度な勧誘・営業行為になってしまうと相手に不快を与える可能性があるので節度を持ってお願いします。</span></li>
+          <li>ネットワークビジネス、宗教活動（布教活動）、政治活動、自己啓発・稼げる系等のセミナーへの勧誘は営業の一環であっても禁止とさせていただきます。<span class="sub">当会に限らず各々が様々な交流を深めていただく観点から、当会としては上記勧誘項目を除いた他団体やグループへの勧誘は現時点では禁止しませんが、他の方から不快に思う勧誘等の報告があった場合は指摘させていただき、改善が見られない場合は参加不適切と判断させていただく場合がございます。</span></li>
+          <li>上記以外にも他の参加者が不快に感じる行為や交流を妨げる行為、会自体の運行を妨げる行為、相手の意思に反する営業、勧誘、接触行為があった場合は参加不適切と判断させていただく場合がございます。</li>
+          <li>禁止事項を守れなかった場合や参加不適切の判断をささせていただいた場合、発覚次第指摘をさせていただきますが、その後改善がされない場合は途中退場や次回以降のご参加をお断りする場合がございます。途中退場と判断させていただいた場合の参加費の返金はございません。</li>
+        </ul>
+        <h3>■当会の責任について</h3>
+        <p>当会は参加者同士の交流は、それぞれのご判断・責任のもとでお願いしております。</p>
+        <ul>
+          <li>当会は交流会中及び交流会終了後の参加者間のトラブルに対して責任を負いかねます。</li>
+          <li>当会は交流会中及び交流会終了後に発生発覚した盗難・傷害・怪我・病気・器物破損等の事件・事故に関して一切責任を負いかねます。</li>
+        </ul>
+      </div>
+    </div>
+    <label class="agree"><input type="checkbox" id="mAgree" /><span>上記の禁止事項・当会の責任について同意します</span></label>
+    <p class="err" id="mAgreeErr" style="display:none">参加するには、同意にチェックを入れてください。</p>
     <button class="btn-primary" id="btnJoinMember">参加する</button>
   </section>
 
@@ -152,6 +183,27 @@
       <input id="gAddress" type="text" placeholder="例：岡崎市" />
       <p class="err" id="guestErr" style="display:none"></p>
     </div>
+    <div class="terms">
+      <div class="terms-scroll">
+        <h3>■禁止事項や遠慮してほしいこと</h3>
+        <p>皆さまに安心してご参加いただける場づくりのため、以下の行為は禁止しております。</p>
+        <ul>
+          <li>会場内は禁煙です。喫煙は各会場で指定されている喫煙所でお願いします。（会場によっては喫煙所を設けていない場合があります）</li>
+          <li>交流会において営業活動自体は問題ありませんが、違法商材、違法行為、違法サービスの営業行為は禁止させていただきます。<span class="sub">ただし、上記禁止事項に該当せずとも営業活動が過度な勧誘・営業行為になってしまうと相手に不快を与える可能性があるので節度を持ってお願いします。</span></li>
+          <li>ネットワークビジネス、宗教活動（布教活動）、政治活動、自己啓発・稼げる系等のセミナーへの勧誘は営業の一環であっても禁止とさせていただきます。<span class="sub">当会に限らず各々が様々な交流を深めていただく観点から、当会としては上記勧誘項目を除いた他団体やグループへの勧誘は現時点では禁止しませんが、他の方から不快に思う勧誘等の報告があった場合は指摘させていただき、改善が見られない場合は参加不適切と判断させていただく場合がございます。</span></li>
+          <li>上記以外にも他の参加者が不快に感じる行為や交流を妨げる行為、会自体の運行を妨げる行為、相手の意思に反する営業、勧誘、接触行為があった場合は参加不適切と判断させていただく場合がございます。</li>
+          <li>禁止事項を守れなかった場合や参加不適切の判断をささせていただいた場合、発覚次第指摘をさせていただきますが、その後改善がされない場合は途中退場や次回以降のご参加をお断りする場合がございます。途中退場と判断させていただいた場合の参加費の返金はございません。</li>
+        </ul>
+        <h3>■当会の責任について</h3>
+        <p>当会は参加者同士の交流は、それぞれのご判断・責任のもとでお願いしております。</p>
+        <ul>
+          <li>当会は交流会中及び交流会終了後の参加者間のトラブルに対して責任を負いかねます。</li>
+          <li>当会は交流会中及び交流会終了後に発生発覚した盗難・傷害・怪我・病気・器物破損等の事件・事故に関して一切責任を負いかねます。</li>
+        </ul>
+      </div>
+    </div>
+    <label class="agree"><input type="checkbox" id="gAgree" /><span>上記の禁止事項・当会の責任について同意します</span></label>
+    <p class="err" id="gAgreeErr" style="display:none">参加するには、同意にチェックを入れてください。</p>
     <button class="btn-primary" id="btnJoinGuest">参加する</button>
   </section>
 
@@ -250,6 +302,8 @@
 
     // 会員: 一言（＋修正があれば登録情報も更新）して参加
     $('btnJoinMember').addEventListener('click', async (ev) => {
+      if (!$('mAgree').checked) { $('mAgreeErr').style.display = 'block'; return; }
+      $('mAgreeErr').style.display = 'none';
       const editing = $('profileEdit').style.display !== 'none';
       if (editing) {
         const name = $('pName').value.trim();
@@ -306,6 +360,8 @@
 
     // 非会員: 都度フォーム
     $('btnJoinGuest').addEventListener('click', async (ev) => {
+      if (!$('gAgree').checked) { $('gAgreeErr').style.display = 'block'; return; }
+      $('gAgreeErr').style.display = 'none';
       const name = $('gName').value.trim();
       const company = $('gCompany').value.trim();
       const job = $('gJob').value.trim();
