@@ -115,6 +115,34 @@
     <button id="btnRegister">登録する</button>
   </section>
 
+  <!-- 登録済み: 確認・変更 -->
+  <section id="s-edit" class="screen">
+    <div class="card">
+      <p style="margin:0 0 4px;font-size:14px;color:var(--muted);">現在の登録内容です。変更がある場合は直接書き換えて「変更を保存」を押してください。</p>
+      <label for="eName">お名前</label>
+      <input id="eName" type="text" autocomplete="name" />
+      <label for="eCompany">会社名</label>
+      <input id="eCompany" type="text" autocomplete="organization" />
+      <label for="eJob">職種</label>
+      <input id="eJob" type="text" autocomplete="organization-title" />
+      <label for="ePhone">電話番号</label>
+      <input id="ePhone" type="tel" inputmode="numeric" autocomplete="tel" />
+      <label for="eCity">市</label>
+      <input id="eCity" type="text" />
+      <p class="err" id="editErr"></p>
+    </div>
+    <button id="btnSave">変更を保存</button>
+  </section>
+
+  <!-- 変更完了 -->
+  <section id="s-saved" class="screen center">
+    <div class="big-check" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <p class="result-title">登録内容を変更しました</p>
+    <p class="result-msg">ありがとうございます。次回の交流会から、この内容で参加できます。</p>
+  </section>
+
   <!-- 登録済み -->
   <section id="s-exists" class="screen center">
     <div class="big-check" aria-hidden="true">
@@ -170,10 +198,40 @@
         if (!accessToken) return fail('ログイン情報が取得できませんでした。LINE内で開き直してください。');
 
         const r = await callGas({ action: 'checkMember' });
-        if (r.status === 'member') { $('existsName').textContent = r.name; show('s-exists'); }
+        if (r.status === 'member') showEdit(r);
         else { show('s-form'); }
       } catch (e) { fail(String((e && e.message) || e)); }
     }
+
+    function showEdit(r) {
+      $('eName').value = r.name || '';
+      $('eCompany').value = r.company || '';
+      $('eJob').value = r.job || '';
+      $('ePhone').value = r.phone || '';
+      $('eCity').value = r.city || '';
+      show('s-edit');
+    }
+
+    $('btnSave').addEventListener('click', async (ev) => {
+      const name = $('eName').value.trim();
+      const company = $('eCompany').value.trim();
+      const job = $('eJob').value.trim();
+      const phone = $('ePhone').value.trim();
+      const city = $('eCity').value.trim();
+      $('editErr').style.display = 'none';
+      if (!name || !company || !job || !phone || !city) {
+        $('editErr').textContent = 'すべての項目を入力してください。';
+        $('editErr').style.display = 'block';
+        return;
+      }
+      ev.target.disabled = true;
+      try {
+        const r = await callGas({ action: 'updateProfile', name: name, company: company, job: job, phone: phone, city: city });
+        if (r.status === 'updated') show('s-saved');
+        else fail(r.message || '変更に失敗しました。');
+      } catch (e) { fail(String(e)); }
+      finally { ev.target.disabled = false; }
+    });
 
     $('btnRegister').addEventListener('click', async (ev) => {
       const name = $('name').value.trim();
@@ -191,7 +249,7 @@
       try {
         const r = await callGas({ action: 'register', name: name, company: company, job: job, phone: phone, city: city });
         if (r.status === 'registered') show('s-done');
-        else if (r.status === 'exists') { $('existsName').textContent = r.name; show('s-exists'); }
+        else if (r.status === 'exists') { location.reload(); }
         else fail(r.message || '登録に失敗しました。');
       } catch (e) { fail(String(e)); }
       finally { ev.target.disabled = false; }
